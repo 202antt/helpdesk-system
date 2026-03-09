@@ -10,7 +10,7 @@ app.use(express.static('public')); // index.html and assets should be in /public
 
 // Connect to MongoDB Atlas
 mongoose.connect(
-    'mongodb+srv://wintersadvocate_db_user:jHsQk8uIpEAJhLjq@cluster0.1osugwq.mongodb.net/helpdesk?retryWrites=true&w=majority',
+    'mongodb+srv://wintersadvocate_db_user:YEB5WGBcbiLOrlWK@cluster0.1osugwq.mongodb.net/helpdesk?retryWrites=true&w=majority',
     { useNewUrlParser: true, useUnifiedTopology: true }
 );
 
