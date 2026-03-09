@@ -1,78 +1,109 @@
 // app.js
+
+const ticketForm = document.getElementById('ticketForm');
 const ticketInput = document.getElementById('ticketInput');
-const submitBtn = document.getElementById('submitBtn');
 const ticketList = document.getElementById('ticketList');
 const searchInput = document.getElementById('searchInput');
-const flash = document.getElementById('flash');
+const flashContainer = document.getElementById('flashContainer');
 
+// ====== Flash Message ======
 function showFlash(message, type = 'success') {
-    flash.textContent = message;
+    const flash = document.createElement('div');
     flash.className = `flash ${type}`;
-    flash.style.opacity = '1';
-    setTimeout(() => flash.style.opacity = '0', 2000);
+    flash.innerText = message;
+    flashContainer.appendChild(flash);
+
+    setTimeout(() => {
+        flash.remove();
+    }, 2500);
 }
 
-// Render tickets
-function renderTickets(tickets, filter = '') {
+// ====== Render a ticket ======
+function renderTicket(ticket) {
+    const li = document.createElement('li');
+    li.dataset.id = ticket._id;
+    li.className = 'ticket-item';
+
+    li.innerHTML = `
+    <span>${ticket.content}</span>
+    <small>${new Date(ticket.createdAt).toLocaleString()}</small>
+    <button class="delete-btn">Delete</button>
+  `;
+
+    ticketList.prepend(li); // newest on top
+}
+
+// ====== Load all tickets from server ======
+async function loadTickets() {
     ticketList.innerHTML = '';
-    const filtered = tickets
-        .filter(t => t.content.toLowerCase().includes(filter.toLowerCase()))
-        .sort((a, b) => a.timestamp - b.timestamp);
-
-    if (!filtered.length) {
-        const li = document.createElement('li');
-        li.textContent = filter ? 'No tickets match your search.' : 'No tickets yet.';
-        li.className = 'no-ticket';
-        ticketList.appendChild(li);
-        return;
+    try {
+        const res = await fetch('/tickets');
+        const tickets = await res.json();
+        tickets.forEach(renderTicket);
+    } catch (err) {
+        showFlash('Failed to load tickets', 'error');
+        console.error(err);
     }
-
-    filtered.forEach(ticket => {
-        const li = document.createElement('li');
-        li.className = 'ticket-item';
-        li.dataset.id = ticket._id;
-        li.innerHTML = `
-      <span class="ticket-content">${ticket.content}</span>
-      <span class="ticket-timestamp">${new Date(ticket.timestamp).toLocaleString()}</span>
-      <button class="delete-btn">Delete</button>
-    `;
-        ticketList.appendChild(li);
-
-        li.querySelector('.delete-btn').addEventListener('click', async () => {
-            await fetch(`/tickets/${ticket._id}`, { method: 'DELETE' });
-            loadTickets(searchInput.value);
-            showFlash('Ticket deleted', 'error');
-        });
-    });
 }
 
-// Load tickets from server
-async function loadTickets(filter = '') {
-    const res = await fetch('/tickets');
-    const tickets = await res.json();
-    renderTickets(tickets, filter);
-}
-
-// Submit ticket
-submitBtn.addEventListener('click', async () => {
+// ====== Add ticket ======
+ticketForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
     const content = ticketInput.value.trim();
-    if (!content) return showFlash('Ticket cannot be empty', 'error');
+    if (!content) return showFlash('Please enter a ticket', 'error');
 
-    await fetch('/tickets', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ content })
-    });
-
-    ticketInput.value = '';
-    loadTickets(searchInput.value);
-    showFlash('Ticket submitted');
+    try {
+        const res = await fetch('/tickets', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ content })
+        });
+        const ticket = await res.json();
+        if (res.ok) {
+            renderTicket(ticket);
+            ticketInput.value = '';
+            showFlash('Ticket submitted!');
+        } else {
+            showFlash(ticket.error || 'Failed to submit', 'error');
+        }
+    } catch (err) {
+        showFlash('Server error', 'error');
+        console.error(err);
+    }
 });
 
-// Search tickets
+// ====== Delete ticket ======
+ticketList.addEventListener('click', async (e) => {
+    if (!e.target.classList.contains('delete-btn')) return;
+
+    const li = e.target.closest('li');
+    const id = li.dataset.id;
+
+    try {
+        const res = await fetch(`/tickets/${id}`, { method: 'DELETE' });
+        const data = await res.json();
+        if (res.ok) {
+            li.remove();
+            showFlash(data.message);
+        } else {
+            showFlash(data.error || 'Failed to delete', 'error');
+        }
+    } catch (err) {
+        showFlash('Server error', 'error');
+        console.error(err);
+    }
+});
+
+// ====== Search tickets ======
 searchInput.addEventListener('input', () => {
-    loadTickets(searchInput.value);
+    const filter = searchInput.value.toLowerCase();
+    const items = ticketList.querySelectorAll('.ticket-item');
+
+    items.forEach(item => {
+        const text = item.querySelector('span').textContent.toLowerCase();
+        item.style.display = text.includes(filter) ? 'flex' : 'none';
+    });
 });
 
-// Initial load
+// ====== Initial load ======
 loadTickets();

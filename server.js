@@ -1,81 +1,77 @@
 // server.js
-const express = require("express");
-const mongoose = require("mongoose");
-const cors = require("cors");
-const bodyParser = require("body-parser");
-require("dotenv").config();
+require('dotenv').config(); // Load .env variables
+const express = require('express');
+const mongoose = require('mongoose');
+const bodyParser = require('body-parser');
+const path = require('path');
+const cors = require('cors');
 
 const app = express();
 
-// ------------------------
-// MIDDLEWARE
-// ------------------------
+// ====== Middleware ======
 app.use(cors());
 app.use(bodyParser.json());
-app.use(express.static("public")); // serve frontend files
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(express.static(path.join(__dirname, 'public')));
 
-// ------------------------
-// DATABASE CONNECTION
-// ------------------------
-const mongoURI = process.env.MONGO_URI || "mongodb+srv://wintersadvocate_db_user:YEB5WGBcbiLOrlWK@cluster0.1osugwq.mongodb.net/helpdeskDB";
+// ====== Environment Variables ======
+const PORT = process.env.PORT || 4000;
+const MONGO_URI = process.env.MONGO_URI;
 
-mongoose.connect(mongoURI)
-    .then(() => console.log("MongoDB connected successfully"))
-    .catch((err) => console.error("MongoDB connection error:", err));
+// ====== Connect to MongoDB ======
+mongoose.connect(MONGO_URI)
+    .then(() => console.log('✅ MongoDB connected successfully!'))
+    .catch(err => console.error('❌ MongoDB connection error:', err));
 
-// ------------------------
-// SCHEMA & MODEL
-// ------------------------
+// ====== Ticket Schema & Model ======
 const ticketSchema = new mongoose.Schema({
-    text: { type: String, required: true },
+    content: { type: String, required: true },
     createdAt: { type: Date, default: Date.now }
 });
 
-const Ticket = mongoose.model("Ticket", ticketSchema);
+const Ticket = mongoose.model('Ticket', ticketSchema);
 
-// ------------------------
-// ROUTES
-// ------------------------
+// ====== API Routes ======
 
 // Get all tickets
-app.get("/tickets", async (req, res) => {
+app.get('/tickets', async (req, res) => {
     try {
-        const tickets = await Ticket.find().sort({ createdAt: -1 });
+        const tickets = await Ticket.find().sort({ createdAt: -1 }); // newest first
         res.json(tickets);
     } catch (err) {
-        res.status(500).json({ error: "Failed to fetch tickets" });
+        res.status(500).json({ error: err.message });
     }
 });
 
 // Add a ticket
-app.post("/tickets", async (req, res) => {
-    try {
-        const { text } = req.body;
-        if (!text || text.trim() === "") return res.status(400).json({ error: "Ticket cannot be empty" });
+app.post('/tickets', async (req, res) => {
+    const { content } = req.body;
+    if (!content) return res.status(400).json({ error: 'Ticket content is required.' });
 
-        const newTicket = new Ticket({ text });
-        await newTicket.save();
+    try {
+        const newTicket = await Ticket.create({ content });
         res.json(newTicket);
     } catch (err) {
-        res.status(500).json({ error: "Failed to add ticket" });
+        res.status(500).json({ error: err.message });
     }
 });
 
 // Delete a ticket
-app.delete("/tickets/:id", async (req, res) => {
+app.delete('/tickets/:id', async (req, res) => {
     try {
-        const deleted = await Ticket.findByIdAndDelete(req.params.id);
-        if (!deleted) return res.status(404).json({ error: "Ticket not found" });
-        res.json({ message: "Ticket deleted", id: req.params.id });
+        await Ticket.findByIdAndDelete(req.params.id);
+        res.json({ message: 'Ticket deleted' });
     } catch (err) {
-        res.status(500).json({ error: "Failed to delete ticket" });
+        res.status(500).json({ error: err.message });
     }
 });
 
-// ------------------------
-// SERVER START
-// ------------------------
-const PORT = process.env.PORT || 10000;
+// ====== Serve HTML ======
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
+
+// ====== Start Server ======
 app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
+    console.log(`🚀 Server running on port ${PORT}`);
 });
