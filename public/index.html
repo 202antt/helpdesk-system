@@ -3,20 +3,28 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>IT Help Desk</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Helpdesk Ticket System 2026</title>
     <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
     <div class="container">
-        <h1>IT Help Desk Ticket System</h1>
-        <div>
-            <input type="text" id="issueInput" placeholder="Enter issue...">
-            <button onclick="submitTicket()">Submit</button>
+        <h1>Helpdesk Ticket System</h1>
+
+        <div class="input-area">
+            <input type="text" id="ticketInput" placeholder="Enter your ticket..." />
+            <button id="submitBtn">Submit Ticket</button>
         </div>
+
+        <input type="text" id="searchInput" placeholder="Search tickets..." />
+
         <ul id="ticketList"></ul>
+
+        <div id="flash" class="flash"></div>
     </div>
-    <script src="script.js"></script>
+
+    <script src="app.js"></script>
 </body>
 
 </html>

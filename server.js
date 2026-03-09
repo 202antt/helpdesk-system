@@ -1,55 +1,42 @@
 // server.js
-const express = require('express')
-const mongoose = require('mongoose')
-const path = require('path')
-const app = express()
+const express = require('express');
+const mongoose = require('mongoose');
+const cors = require('cors');
+const app = express();
 
-// Middleware
-app.use(express.json())
-app.use(express.static(path.join(__dirname, 'public')))
+app.use(express.json());
+app.use(cors());
+app.use(express.static('public')); // index.html and assets should be in /public
 
-// MongoDB connection
-const mongoURI = process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/helpdeskDB'
+// Connect to MongoDB Atlas
+mongoose.connect(
+    'mongodb+srv://wintersadvocate_db_user:jHsQk8uIpEAJhLjq@cluster0.1osugwq.mongodb.net/helpdesk?retryWrites=true&w=majority',
+    { useNewUrlParser: true, useUnifiedTopology: true }
+);
 
-mongoose.connect(mongoURI)
-    .then(() => console.log('MongoDB connected'))
-    .catch(err => console.error('MongoDB connection error:', err))
+const ticketSchema = new mongoose.Schema({
+    content: String,
+    timestamp: { type: Date, default: Date.now }
+});
 
-// Ticket model
-const TicketSchema = new mongoose.Schema({
-    text: String
-})
-const Ticket = mongoose.model('Ticket', TicketSchema)
+const Ticket = mongoose.model('Ticket', ticketSchema);
 
-// Routes
+// API endpoints
 app.get('/tickets', async (req, res) => {
-    try {
-        const tickets = await Ticket.find()
-        res.json(tickets)
-    } catch (err) {
-        res.status(500).json({ message: 'Error fetching tickets' })
-    }
-})
+    const tickets = await Ticket.find();
+    res.json(tickets);
+});
 
 app.post('/tickets', async (req, res) => {
-    try {
-        const newTicket = new Ticket({ text: req.body.ticket })
-        const savedTicket = await newTicket.save()
-        res.json({ ticket: savedTicket })
-    } catch (err) {
-        res.status(500).json({ message: 'Error saving ticket' })
-    }
-})
+    const ticket = new Ticket({ content: req.body.content });
+    await ticket.save();
+    res.json(ticket);
+});
 
 app.delete('/tickets/:id', async (req, res) => {
-    try {
-        await Ticket.findByIdAndDelete(req.params.id)
-        res.json({ message: 'Ticket deleted' })
-    } catch (err) {
-        res.status(500).json({ message: 'Error deleting ticket' })
-    }
-})
+    await Ticket.findByIdAndDelete(req.params.id);
+    res.json({ success: true });
+});
 
-// Dynamic port
-const PORT = process.env.PORT || 3000
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`))
+const PORT = process.env.PORT || 4000;
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
