@@ -1,4 +1,4 @@
-Help Desk Ticket System
+"My Help Desk Ticketing System"
 About Me & This Project
 
 Hey! I’m Anthony, and this is my full-stack Help Desk Ticket System. I built it as part of my journey to learn Node.js, Express, MongoDB, and vanilla JS from scratch. Along the way, I hit all the classic beginner roadblocks, so I thought I’d document them here to help anyone else who’s learning.
@@ -27,7 +27,7 @@ Installation / Running Locally
 
 Clone the repo
 
-git clone https://github.com/<YourActualUsername>/helpdesk-system.git
+git clone https://github.com/<your-username>/helpdesk-system.git
 cd helpdesk-system
 
 Install dependencies
@@ -50,7 +50,7 @@ Start the server
 
 npm start
 
-⚠️ !!!!!! Watch out for port 3000 already in use. Either kill the process using it:
+⚠️ !!! Watch out for port 3000 already in use. Either kill the process using it:
 
 netstat -ano | findstr :3000
 taskkill /PID <PID> /F
@@ -81,11 +81,13 @@ Port in use (EADDRINUSE) → Killed old Node process or changed port.
 
 Git not recognized → Had to install Git and add it to PATH.
 
-Git 400 error → Using wrong URL syntax (<username> Added "@" in front of username so many times until I realized the error SO DO NOT PUT THE @ in front of the Username lol) — fixed with actual username.
+Git 400 error → Using wrong URL syntax (Added "@" in front of username so many times until I realized the error SO DO NOT PUT THE @ in front of the Username lol) — fixed with actual username.
+
+Updating GitHub repositories → Learned how to use PowerShell to pull, commit, and push updates to my repos safely.
 
 Deployment
 
-Push to GitHub (make sure you use your actual username *NO @* in the URL)
+Push to GitHub (make sure you use your actual username NO @ in the URL)
 
 Connect repo to Render.com
 
@@ -105,4 +107,4 @@ Add ticket categories & priorities
 
 Moral of the story
 
-Building a full-stack app is messy at first, but every error is just a lesson in disguise. If you can survive Node, Mongo, npm, and Git all at once… you can survive almost anything. Butttt... you might get a headache in the process 😎
+Building a full-stack app is messy at first, but every error is just a lesson in disguise. If you can survive Node, Mongo, npm, and Git all at once… you can survive almost anything. Butttt… you might get a headache in the process 😎
