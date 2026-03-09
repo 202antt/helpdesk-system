@@ -1,42 +1,81 @@
 // server.js
-const express = require('express');
-const mongoose = require('mongoose');
-const cors = require('cors');
+const express = require("express");
+const mongoose = require("mongoose");
+const cors = require("cors");
+const bodyParser = require("body-parser");
+require("dotenv").config();
+
 const app = express();
 
-app.use(express.json());
+// ------------------------
+// MIDDLEWARE
+// ------------------------
 app.use(cors());
-app.use(express.static('public')); // index.html and assets should be in /public
+app.use(bodyParser.json());
+app.use(express.static("public")); // serve frontend files
 
-// Connect to MongoDB Atlas
-mongoose.connect(
-    'mongodb+srv://wintersadvocate_db_user:YEB5WGBcbiLOrlWK@cluster0.1osugwq.mongodb.net/helpdesk?retryWrites=true&w=majority',
-    { useNewUrlParser: true, useUnifiedTopology: true }
-);
+// ------------------------
+// DATABASE CONNECTION
+// ------------------------
+const mongoURI = process.env.MONGO_URI || "mongodb+srv://wintersadvocate_db_user:YEB5WGBcbiLOrlWK@cluster0.1osugwq.mongodb.net/helpdeskDB";
 
+mongoose.connect(mongoURI)
+    .then(() => console.log("MongoDB connected successfully"))
+    .catch((err) => console.error("MongoDB connection error:", err));
+
+// ------------------------
+// SCHEMA & MODEL
+// ------------------------
 const ticketSchema = new mongoose.Schema({
-    content: String,
-    timestamp: { type: Date, default: Date.now }
+    text: { type: String, required: true },
+    createdAt: { type: Date, default: Date.now }
 });
 
-const Ticket = mongoose.model('Ticket', ticketSchema);
+const Ticket = mongoose.model("Ticket", ticketSchema);
 
-// API endpoints
-app.get('/tickets', async (req, res) => {
-    const tickets = await Ticket.find();
-    res.json(tickets);
+// ------------------------
+// ROUTES
+// ------------------------
+
+// Get all tickets
+app.get("/tickets", async (req, res) => {
+    try {
+        const tickets = await Ticket.find().sort({ createdAt: -1 });
+        res.json(tickets);
+    } catch (err) {
+        res.status(500).json({ error: "Failed to fetch tickets" });
+    }
 });
 
-app.post('/tickets', async (req, res) => {
-    const ticket = new Ticket({ content: req.body.content });
-    await ticket.save();
-    res.json(ticket);
+// Add a ticket
+app.post("/tickets", async (req, res) => {
+    try {
+        const { text } = req.body;
+        if (!text || text.trim() === "") return res.status(400).json({ error: "Ticket cannot be empty" });
+
+        const newTicket = new Ticket({ text });
+        await newTicket.save();
+        res.json(newTicket);
+    } catch (err) {
+        res.status(500).json({ error: "Failed to add ticket" });
+    }
 });
 
-app.delete('/tickets/:id', async (req, res) => {
-    await Ticket.findByIdAndDelete(req.params.id);
-    res.json({ success: true });
+// Delete a ticket
+app.delete("/tickets/:id", async (req, res) => {
+    try {
+        const deleted = await Ticket.findByIdAndDelete(req.params.id);
+        if (!deleted) return res.status(404).json({ error: "Ticket not found" });
+        res.json({ message: "Ticket deleted", id: req.params.id });
+    } catch (err) {
+        res.status(500).json({ error: "Failed to delete ticket" });
+    }
 });
 
-const PORT = process.env.PORT || 4000;
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+// ------------------------
+// SERVER START
+// ------------------------
+const PORT = process.env.PORT || 10000;
+app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
+});
