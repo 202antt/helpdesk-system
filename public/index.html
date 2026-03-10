@@ -2,29 +2,128 @@
 <html lang="en">
 
 <head>
+
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Helpdesk Ticket System 2026</title>
-    <link rel="stylesheet" href="style.css">
+
+    <title>Help Desk Ticket System</title>
+
+    <style>
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            background: #f4f6f8;
+            display: flex;
+            justify-content: center;
+            padding: 40px;
+        }
+
+        .container {
+            width: 600px;
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            text-align: center;
+        }
+
+        form {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        input {
+            flex: 1;
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+
+        button {
+            padding: 10px 20px;
+            border: none;
+            background: #007BFF;
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #0056b3;
+        }
+
+        ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .ticket-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .ticket-item span {
+            flex: 1;
+        }
+
+        .ticket-item small {
+            margin-left: 10px;
+            color: gray;
+        }
+
+        .delete-btn {
+            background: red;
+        }
+
+        .flash {
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+        }
+
+        .flash.success {
+            background: #d4edda;
+        }
+
+        .flash.error {
+            background: #f8d7da;
+        }
+    </style>
+
 </head>
 
 <body>
+
     <div class="container">
-        <h1>Helpdesk Ticket System</h1>
 
-        <div class="input-area">
-            <input type="text" id="ticketInput" placeholder="Enter your ticket..." />
-            <button id="submitBtn">Submit Ticket</button>
-        </div>
+        <h1>Help Desk Tickets</h1>
 
-        <input type="text" id="searchInput" placeholder="Search tickets..." />
+        <div id="flashContainer"></div>
+
+        <form id="ticketForm">
+
+            <input id="ticketInput" type="text" placeholder="Enter ticket..." required />
+
+            <button type="submit">
+                Submit Ticket
+            </button>
+
+        </form>
+
+        <input id="searchInput" type="text" placeholder="Search tickets..." />
 
         <ul id="ticketList"></ul>
 
-        <div id="flash" class="flash"></div>
     </div>
 
-    <script src="app.js"></script>
+    <script src="/app.js"></script>
+
 </body>
 
 </html>
