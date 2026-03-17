@@ -1,7 +1,7 @@
 "My Help Desk Ticketing System"
 About Me & This Project
 
-Hey! I’m Anthony, and this is my full-stack Help Desk Ticket System. I built it as part of my journey to learn Node.js, Express, MongoDB, and vanilla JS from scratch. Along the way, I hit all the classic beginner roadblocks, so I thought I’d document them here to help anyone else who’s learning. You can try it out here: https://helpdesk-system-esar.onrender.com
+Hey! I’m Anthony, and this is my full-stack Help Desk Ticket System. I built it as part of my journey to learn Node.js, Express, MongoDB, and vanilla JS from scratch. Along the way, I hit all the classic beginner roadblocks, so I thought I’d document them here to help anyone else who’s learning. You can try it out here: https://helpdesk-system-esar.onrender.com *Please note the website may take a couple of seconds to load.*
 
 This project lets you:
 
