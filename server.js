@@ -5,8 +5,15 @@ const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const path = require('path');
 const cors = require('cors');
+const rateLimit = require('express-rate-limit');
 
 const app = express();
+
+// Rate limiter: limit repeated requests to ticket endpoints
+const ticketsLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: 100, // limit each IP to 100 requests per windowMs
+});
 
 // ====== Middleware ======
 app.use(cors());
@@ -32,6 +39,9 @@ const ticketSchema = new mongoose.Schema({
 const Ticket = mongoose.model('Ticket', ticketSchema);
 
 // ====== API Routes ======
+
+// Apply rate limiting to all /tickets routes
+app.use('/tickets', ticketsLimiter);
 
 // Get all tickets
 app.get('/tickets', async (req, res) => {
